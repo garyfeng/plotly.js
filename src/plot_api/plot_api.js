@@ -2654,11 +2654,33 @@ function makePlotFramework(gd) {
     // (only for shapes to be drawn below the whole plot)
     var layerBelow = fullLayout._paper.append('g')
         .classed('layer-below', true);
+
+	// garyfeng: adding transparent image background
+	// see http://garyfeng.github.io/2016/06/plot-ly-transparent-image-background-my-hacks.html
+	// the `_imageLowerLayer` is not currently used. 
+	// a). need to add  style = "opacity:0.5"
+	// b). add the following to it
+	//        	<g class="hm hm6001ca" transform="translate(80,100)">
+	//			<image
+	//				xmlns="http://www.w3.org/2000/svg" xlink:href="..." 
+	//				height="370" width="769" x="0" y="0" 
+	//				preserveAspectRatio="none" 
+	//				style="opacity: 1;">
+	//			</image>
+
+    // garyfeng: a)
+    //fullLayout._imageLowerLayer = layerBelow.append('g')
+    //    .classed('imagelayer', true)
+    var bgImageOpacity = 0.9
     fullLayout._imageLowerLayer = layerBelow.append('g')
-        .classed('imagelayer', true);
+        .classed('imagelayer', true)
+        .style({opacity: bgImageOpacity});
+    // end garyfeng a)
+    
     fullLayout._shapeLowerLayer = layerBelow.append('g')
         .classed('shapelayer', true);
 
+	
     var subplots = Plotly.Axes.getSubplots(gd);
     if(subplots.join('') !== Object.keys(gd._fullLayout._plots || {}).join('')) {
         makeSubplots(gd, subplots);
@@ -2764,9 +2786,14 @@ function makeCartesianPlotFramwork(gd, subplots) {
     // create all the layers in order, so we know they'll stay in order
     var overlays = [];
 
+	//garyfeng
+	var plotOpacity = 0.5
+	// end garyfeng
+	
     fullLayout._paper.selectAll('g.subplot').data(subplots)
       .enter().append('g')
         .classed('subplot', true)
+        .style({opacity: plotOpacity})
         .each(function(subplot) {
             var plotinfo = fullLayout._plots[subplot],
                 plotgroup = plotinfo.plotgroup = d3.select(this).classed(subplot, true),
